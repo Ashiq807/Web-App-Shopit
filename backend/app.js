@@ -1,6 +1,8 @@
 import express from "express";
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
 import productRoutes from "./routes/products.js";
+import authRoutes from "./routes/auth.js";
 import { connectDatabase } from "./config/dbConnect.js";
 import errorMiddleware from "./middlewares/errors.js";
 
@@ -17,8 +19,10 @@ connectDatabase();
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.use("/api/v1", productRoutes);
+app.use("/api/v1", authRoutes);
 
 app.use(errorMiddleware);
 

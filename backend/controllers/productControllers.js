@@ -1,9 +1,9 @@
-import catchAsynErrors from "../middlewares/catchAsynErrors.js";
+import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
 import Product from "../models/product.js";
 import APIFilters from "../utils/apiFilters.js";
 import ErrorHandler from "../utils/errorHandler.js";
 
-export const getProducts = catchAsynErrors(async (req, res, next) => {
+export const getProducts = catchAsyncErrors(async (req, res, next) => {
   const resPerPage = 4;
 
   const apiFilters = new APIFilters(Product, req.query).search().filters();
@@ -17,7 +17,9 @@ export const getProducts = catchAsynErrors(async (req, res, next) => {
   res.status(200).json({ resPerPage, filteredProductsCount, products });
 });
 
-export const newProduct = catchAsynErrors(async (req, res, next) => {
+export const newProduct = catchAsyncErrors(async (req, res, next) => {
+  req.body.user = req.user._id;
+
   const product = await Product.create(req.body);
 
   res.status(200).json({
@@ -25,7 +27,7 @@ export const newProduct = catchAsynErrors(async (req, res, next) => {
   });
 });
 
-export const getProductDetails = catchAsynErrors(async (req, res, next) => {
+export const getProductDetails = catchAsyncErrors(async (req, res, next) => {
   const product = await Product.findById(req?.params?.id);
 
   if (!product) {
@@ -37,7 +39,7 @@ export const getProductDetails = catchAsynErrors(async (req, res, next) => {
   });
 });
 
-export const updateProduct = catchAsynErrors(async (req, res, next) => {
+export const updateProduct = catchAsyncErrors(async (req, res, next) => {
   let product = await Product.findById(req?.params?.id);
 
   if (!product) {
@@ -51,7 +53,7 @@ export const updateProduct = catchAsynErrors(async (req, res, next) => {
   res.status(200).json({ product });
 });
 
-export const deleteProduct = catchAsynErrors(async (req, res, next) => {
+export const deleteProduct = catchAsyncErrors(async (req, res, next) => {
   const product = await Product.findById(req?.params?.id);
 
   if (!product) {
