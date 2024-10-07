@@ -5,6 +5,7 @@ import ErrorHandler from "../utils/errorHandler.js";
 import sendToken from "../utils/sendToken.js";
 import sendEmail from "../utils/sendEmail.js";
 import crypto from "crypto";
+import { upload_file } from "../utils/cloudinary.js";
 
 export const registerUser = catchAsyncErrors(async (req, res, next) => {
   const { name, email, password } = req.body;
@@ -48,6 +49,18 @@ export const logout = catchAsyncErrors(async (req, res, next) => {
 
   res.status(200).json({
     message: "Logged Out",
+  });
+});
+
+export const uploadAvatar = catchAsyncErrors(async (req, res, next) => {
+  const avatarResponse = await upload_file(req.body.avatar, "shopIT/avatars");
+
+  const user = await User.findByIdAndUpdate(req?.user?._id, {
+    avatar: avatarResponse,
+  });
+
+  res.status(200).json({
+    user
   });
 });
 
