@@ -5,7 +5,7 @@ import ErrorHandler from "../utils/errorHandler.js";
 import sendToken from "../utils/sendToken.js";
 import sendEmail from "../utils/sendEmail.js";
 import crypto from "crypto";
-import { upload_file } from "../utils/cloudinary.js";
+import { delete_file, upload_file } from "../utils/cloudinary.js";
 
 export const registerUser = catchAsyncErrors(async (req, res, next) => {
   const { name, email, password } = req.body;
@@ -55,12 +55,16 @@ export const logout = catchAsyncErrors(async (req, res, next) => {
 export const uploadAvatar = catchAsyncErrors(async (req, res, next) => {
   const avatarResponse = await upload_file(req.body.avatar, "shopIT/avatars");
 
+  if (req?.user?.avatar?.url) {
+    await delete_file(req?.user?.avatar?.public_id);
+  }
+
   const user = await User.findByIdAndUpdate(req?.user?._id, {
     avatar: avatarResponse,
   });
 
   res.status(200).json({
-    user
+    user,
   });
 });
 
@@ -75,7 +79,7 @@ export const forgotPassword = catchAsyncErrors(async (req, res, next) => {
 
   await user.save();
 
-  const resetUrl = `${process.env.FRONTEND_URL}/api/v1/password/reset/${resetToken}`;
+  const resetUrl = `${process.env.FRONTEND_URL}/password/reset/${resetToken}`;
 
   const message = getResetPasswordTemplate(user?.name, resetUrl);
 
@@ -131,7 +135,11 @@ export const resetPassword = catchAsyncErrors(async (req, res, next) => {
 
   await user.save();
 
-  sendToken(user, 200, res);
+  res.status(200).json({
+    message: "Password reset successfully."
+  });
+
+  // sendToken(user, 200, res);
 });
 
 export const getUserProfile = catchAsyncErrors(async (req, res, next) => {
