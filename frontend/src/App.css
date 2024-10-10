@@ -367,7 +367,7 @@ footer {
   padding: 5px 10px 5px 15px;
   color: grey;
   text-decoration: none;
-  cursor: default;
+  cursor: pointer;
   font-weight: bold;
   float: left;
   height: auto;
