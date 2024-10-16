@@ -21,6 +21,7 @@ import PaymentMethod from "./components/cart/PaymentMethod";
 import MyOrders from "./components/order/MyOrders";
 
 import "./App.css";
+import OrderDetails from "./components/order/OrderDetails";
 
 function App() {
   return (
@@ -99,6 +100,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <MyOrders />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/me/order/:id"
+              element={
+                <ProtectedRoute>
+                  <OrderDetails />
                 </ProtectedRoute>
               }
             />

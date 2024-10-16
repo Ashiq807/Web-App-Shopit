@@ -2,18 +2,34 @@ import React, { useEffect } from "react";
 import toast from "react-hot-toast";
 import Loader from "../layout/Layout";
 import { MDBDataTable } from "mdbreact";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useDispatch } from "react-redux";
 
 import { useMyOrdersQuery } from "../../redux/api/orderApi";
+import MetaData from "../layout/MetaData";
+import { clearCart } from "../../redux/features/cartSlice";
 
 const MyOrders = () => {
   const { data, isLoading, error } = useMyOrdersQuery();
+
+  const [searchParams] = useSearchParams();
+
+  const dispatch = useDispatch();
+
+  const navigate = useNavigate();
+
+  const orderSuccess = searchParams.get("order_success");
 
   useEffect(() => {
     if (error) {
       toast.error(error?.data?.message);
     }
-  }, [error]);
+
+    if (orderSuccess) {
+      dispatch(clearCart());
+      navigate("/me/orders");
+    }
+  }, [error, orderSuccess, dispatch, navigate]);
 
   const setOrders = () => {
     const orders = {
@@ -75,17 +91,20 @@ const MyOrders = () => {
   if (isLoading) return <Loader />;
 
   return (
-    <div>
-      <h1 className="my-5">{data?.orders?.length} Orders</h1>
+    <>
+      <MetaData title="My Orders" />
+      <div>
+        <h1 className="my-5">{data?.orders?.length} Orders</h1>
 
-      <MDBDataTable
-        data={setOrders()}
-        className="px-3"
-        bordered
-        striped
-        hover
-      />
-    </div>
+        <MDBDataTable
+          data={setOrders()}
+          className="px-3"
+          bordered
+          striped
+          hover
+        />
+      </div>
+    </>
   );
 };
 
