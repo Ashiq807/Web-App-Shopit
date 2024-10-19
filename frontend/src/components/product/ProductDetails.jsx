@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import StarRatings from "react-star-ratings";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setCartItem } from "../../redux/features/cartSlice";
 
 import { useGetProductDetailsQuery } from "../../redux/api/productsApi";
 import Loader from "../layout/Layout";
 import MetaData from "../layout/MetaData";
+import NewReview from "../reviews/NewReview";
+import ListReviews from "../reviews/ListReviews";
 
 const ProductDetails = () => {
   const params = useParams();
@@ -23,6 +25,8 @@ const ProductDetails = () => {
   const product = data?.product;
 
   const [activeImg, setActiveImg] = useState("");
+
+  const { isAuthenticated } = useSelector((state) => state.auth);
 
   useEffect(() => {
     setActiveImg(
@@ -176,11 +180,18 @@ const ProductDetails = () => {
             Sold by: <strong>{product?.seller}</strong>
           </p>
 
-          <div className="alert alert-danger my-5" type="alert">
-            Login to post your review.
-          </div>
+          {isAuthenticated ? (
+            <NewReview productId={product?._id} />
+          ) : (
+            <div className="alert alert-danger my-5" type="alert">
+              Login to post your review.
+            </div>
+          )}
         </div>
       </div>
+      {product?.reviews?.length > 0 && (
+        <ListReviews reviews={product?.reviews} />
+      )}
     </>
   );
 };
