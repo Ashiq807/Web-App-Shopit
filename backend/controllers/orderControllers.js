@@ -110,3 +110,36 @@ export const deleteOrder = catchAsyncErrors(async (req, res, next) => {
     success: true,
   });
 });
+
+async function getSalesData(startDate, endDate) {
+  const salesData = await Order.aggregate([
+    {
+      $match: {
+        createdAt: {
+          $gte: new Date(startDate),
+          $lte: new Date(endDate),
+        },
+      },
+    },
+    {
+      $group: {
+        _id: {
+          date: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$createdAt",
+            },
+          },
+        },
+      },
+    },
+  ]);
+}
+
+export const getSales = catchAsyncErrors(async (req, res, next) => {
+  const startDate = new Date(req.query.startDate);
+  const endDate = new Date(req.query.endDate);
+
+  startDate.setHours(0, 0, 0, 0);
+  endDate.setHours(23, 59, 59, 999);
+});
