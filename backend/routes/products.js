@@ -10,6 +10,7 @@ import {
   getProducts,
   newProduct,
   updateProduct,
+  uploadProductImages,
 } from "../controllers/productControllers.js";
 import { authorizeRoles, isAuthenticatedUser } from "../middlewares/auth.js";
 
@@ -19,9 +20,12 @@ router.route("/products").get(getProducts);
 router
   .route("/admin/products")
   .post(isAuthenticatedUser, authorizeRoles("admin"), newProduct)
-  .get(isAuthenticatedUser, authorizeRoles("admin"), getAdminProducts)
+  .get(isAuthenticatedUser, authorizeRoles("admin"), getAdminProducts);
 
 router.route("/products/:id").get(getProductDetails);
+router
+  .route("/admin/products/:id/upload_images")
+  .put(isAuthenticatedUser, authorizeRoles("admin"), uploadProductImages);
 
 router
   .route("/admin/products/:id")
