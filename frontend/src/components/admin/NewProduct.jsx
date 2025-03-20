@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import Loader from "../layout/Layout";
 import { useNavigate } from "react-router-dom";
 
 import MetaData from "../layout/MetaData";
