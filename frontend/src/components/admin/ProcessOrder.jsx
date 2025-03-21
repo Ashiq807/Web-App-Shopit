@@ -1,18 +1,25 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { Link, useParams } from "react-router-dom";
+import { Link, useFetcher, useParams } from "react-router-dom";
 
 import Loader from "../layout/Layout";
 import MetaData from "../layout/MetaData";
 import AdminLayout from "../layout/AdminLayout";
-import { useOrderDetailsQuery } from "../../redux/api/orderApi";
+import {
+  useOrderDetailsQuery,
+  useUpdateOrderMutation,
+} from "../../redux/api/orderApi";
 
 const ProcessOrder = () => {
+  const [status, setStatus] = useState("");
+
   const params = useParams();
 
-  const { data, isLoading, error } = useOrderDetailsQuery(params?.id);
+  const { data } = useOrderDetailsQuery(params?.id);
 
   const order = data?.order || {};
+
+  const [updateOrder, { isSuccess, error }] = useUpdateOrderMutation();
 
   const {
     shippingInfo,
@@ -26,10 +33,26 @@ const ProcessOrder = () => {
   const isPaid = paymentInfo?.status === "paid" ? true : false;
 
   useEffect(() => {
+    if (orderStatus) {
+      setStatus(orderStatus);
+    }
+  }, [orderStatus]);
+
+  useEffect(() => {
     if (error) {
       toast.error(error?.data?.message);
     }
-  }, [error]);
+
+    if (isSuccess) {
+      toast.success("Order updated");
+    }
+  }, [error, isSuccess]);
+
+  const updateOrderHandler = (id) => {
+    const data = { status };
+
+    updateOrder({ id, body: data });
+  };
 
   return (
     <AdminLayout>
@@ -61,7 +84,7 @@ const ProcessOrder = () => {
 
           <h3 className="mt-5 mb-4">Shipping Info</h3>
           <table className="table table-striped table-bordered">
-          <tbody>
+            <tbody>
               <tr>
                 <th scope="row">Name</th>
                 <td>{user?.name}</td>
@@ -82,7 +105,7 @@ const ProcessOrder = () => {
 
           <h3 className="mt-5 mb-4">Payment Info</h3>
           <table className="table table-striped table-bordered">
-          <tbody>
+            <tbody>
               <tr>
                 <th scope="row">Status</th>
                 <td className={isPaid ? "greenColor" : "redColor"}>
@@ -108,25 +131,30 @@ const ProcessOrder = () => {
 
           <hr />
           <div className="cart-item my-1">
-            <div className="row my-5">
-              <div className="col-4 col-lg-2">
-                <img
-                  src="../images//default_product.png"
-                  alt=""
-                  height="45"
-                  width="65"
-                />
+            {orderItems?.map((item) => (
+              <div className="row my-5">
+                <div className="col-4 col-lg-2">
+                  <img
+                    src={item?.image}
+                    alt={item?.name}
+                    height="45"
+                    width="65"
+                  />
+                </div>
+
+                <div className="col-5 col-lg-5">
+                  <Link to={`/product/${item?.product}`}>{item?.name}</Link>
+                </div>
+
+                <div className="col-4 col-lg-2 mt-4 mt-lg-0">
+                  <p>${item?.price}</p>
+                </div>
+
+                <div className="col-4 col-lg-3 mt-4 mt-lg-0">
+                  <p>{item?.quantity} Piece(s)</p>
+                </div>
               </div>
-              <div className="col-5 col-lg-5">
-                <a href="">Product</a>
-              </div>
-              <div className="col-4 col-lg-2 mt-4 mt-lg-0">
-                <p>$34</p>
-              </div>
-              <div className="col-4 col-lg-3 mt-4 mt-lg-0">
-                <p>2 Piece(s)</p>
-              </div>
-            </div>
+            ))}
           </div>
           <hr />
         </div>
@@ -135,19 +163,32 @@ const ProcessOrder = () => {
           <h4 className="my-4">Status</h4>
 
           <div className="mb-3">
-            <select className="form-select" name="status" value="">
+            <select
+              className="form-select"
+              name="status"
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+            >
               <option value="Processing">Processing</option>
               <option value="Shipped">Shipped</option>
               <option value="Delivered">Delivered</option>
             </select>
           </div>
 
-          <button className="btn btn-primary w-100">Update Status</button>
+          <button
+            className="btn btn-primary w-100"
+            onClick={() => updateOrderHandler(order?._id)}
+          >
+            Update Status
+          </button>
 
           <h4 className="mt-5 mb-3">Order Invoice</h4>
-          <a href="#" className="btn btn-success w-100">
+          <Link
+            to={`/invoice/order/${order?._id}`}
+            className="btn btn-success w-100"
+          >
             <i className="fa fa-print"></i> Generate Invoice
-          </a>
+          </Link>
         </div>
       </div>
     </AdminLayout>
