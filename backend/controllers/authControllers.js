@@ -136,7 +136,7 @@ export const resetPassword = catchAsyncErrors(async (req, res, next) => {
   await user.save();
 
   res.status(200).json({
-    message: "Password reset successfully."
+    message: "Password reset successfully.",
   });
 
   // sendToken(user, 200, res);
@@ -228,6 +228,10 @@ export const deleteUser = catchAsyncErrors(async (req, res, next) => {
     return next(
       new ErrorHandler(`User not found with id: ${req.params.id}`, 404)
     );
+  }
+
+  if (user?.avatar?.public_id) {
+    await delete_file(user?.avatar?.public_id);
   }
 
   await user.deleteOne({ _id: req.params.id });

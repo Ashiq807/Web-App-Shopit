@@ -6,28 +6,36 @@ import { Link } from "react-router-dom";
 
 import MetaData from "../layout/MetaData";
 import AdminLayout from "../layout/AdminLayout";
-import { useGetAdminUsersQuery } from "../../redux/api/userApi";
+import {
+  useDeleteUserMutation,
+  useGetAdminUsersQuery,
+} from "../../redux/api/userApi";
 
 const ListUsers = () => {
   const { data, isLoading, error } = useGetAdminUsersQuery();
+
+  const [
+    deleteUser,
+    { error: deleteError, isLoading: isDeleteLoading, isSuccess },
+  ] = useDeleteUserMutation();
 
   useEffect(() => {
     if (error) {
       toast.error(error?.data?.message);
     }
 
-    // if (deleteError) {
-    //   toast.error(deleteError?.data?.message);
-    // }
+    if (deleteError) {
+      toast.error(deleteError?.data?.message);
+    }
 
-    // if (isSuccess) {
-    //   toast.success("Order Deleted");
-    // }
-  }, [error]);
+    if (isSuccess) {
+      toast.success("User Deleted");
+    }
+  }, [error, deleteError, isSuccess]);
 
-  //   const deleteOrderHandler = (id) => {
-  //     deleteOrder(id);
-  //   };
+  const deleteUserHandler = (id) => {
+    deleteUser(id);
+  };
 
   const setUsers = () => {
     const users = {
@@ -85,8 +93,8 @@ const ListUsers = () => {
             </Link>
             <button
               className="btn btn-outline-danger ms-2"
-              //   onClick={() => deleteOrderHandler(order?._id)}
-              //   disabled={isDeleteLoading}
+              onClick={() => deleteUserHandler(user?._id)}
+              disabled={isDeleteLoading}
             >
               <i className="fa fa-trash"></i>
             </button>
