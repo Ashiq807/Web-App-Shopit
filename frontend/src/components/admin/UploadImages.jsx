@@ -75,8 +75,8 @@ const UploadImages = () => {
   const handleImagePreviewDelete = (image) => {
     const filteredImagesPreview = imagesPreview.filter((img) => img !== image);
 
-    setImages(filteredImagesPreview);
     setImagesPreview(filteredImagesPreview);
+    setImages(filteredImagesPreview);
   };
 
   const submitHandler = (e) => {
